@@ -64,8 +64,10 @@ if len(valid_dates) == 0:
     st.error("유효한 날짜 데이터가 없습니다.")
     st.stop()
 
-min_date = valid_dates.min()
-max_date = valid_dates.max()
+# Python date 객체로 변환
+import datetime
+min_date = pd.to_datetime(valid_dates.min()).date()
+max_date = pd.to_datetime(valid_dates.max()).date()
 
 # 월 목록 생성
 df['Year-Month'] = df['Created Date'].apply(lambda x: x.strftime('%Y-%m') if pd.notna(x) else None)
