@@ -46,14 +46,67 @@ if df is None or len(df) == 0:
     st.warning("데이터가 없습니다. Google Sheets에 데이터를 추가해주세요.")
     st.stop()
 
-# 새로고침 버튼
+# 새로고침 버튼 및 날짜 필터
 col_refresh, col_info = st.columns([1, 4])
 with col_refresh:
     if st.button("🔄 데이터 새로고침"):
         st.cache_data.clear()
         st.rerun()
 with col_info:
-    st.caption(f"마지막 업데이트: 데이터 {len(df):,}행 로드됨")
+    st.caption(f"전체 데이터: {len(df):,}행")
+
+# ===== 날짜 필터 =====
+st.subheader("📅 기간 선택")
+
+min_date = df['Created Date'].min()
+max_date = df['Created Date'].max()
+
+col_filter1, col_filter2, col_filter3 = st.columns([1, 1, 2])
+
+with col_filter1:
+    start_date = st.date_input(
+        "시작일",
+        value=min_date,
+        min_value=min_date,
+        max_value=max_date
+    )
+
+with col_filter2:
+    end_date = st.date_input(
+        "종료일",
+        value=max_date,
+        min_value=min_date,
+        max_value=max_date
+    )
+
+with col_filter3:
+    # 빠른 선택 버튼
+    st.write("빠른 선택:")
+    quick_col1, quick_col2, quick_col3, quick_col4 = st.columns(4)
+
+    with quick_col1:
+        if st.button("최근 7일"):
+            end_date = max_date
+            start_date = max_date - pd.Timedelta(days=6)
+    with quick_col2:
+        if st.button("최근 14일"):
+            end_date = max_date
+            start_date = max_date - pd.Timedelta(days=13)
+    with quick_col3:
+        if st.button("최근 30일"):
+            end_date = max_date
+            start_date = max_date - pd.Timedelta(days=29)
+    with quick_col4:
+        if st.button("전체 기간"):
+            start_date = min_date
+            end_date = max_date
+
+# 날짜 필터 적용
+df = df[(df['Created Date'] >= start_date) & (df['Created Date'] <= end_date)]
+
+st.info(f"📊 선택된 기간: **{start_date}** ~ **{end_date}** ({len(df):,}행)")
+
+st.markdown("---")
 
 # Order ID별 정보 (중복 제거)
 order_info = df.groupby('Order ID').agg({
