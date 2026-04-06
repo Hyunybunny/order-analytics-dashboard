@@ -91,6 +91,9 @@ if selected_month != "전체 기간":
     last_day = calendar.monthrange(year, month)[1]
     default_start = pd.Timestamp(year, month, 1).date()
     default_end = pd.Timestamp(year, month, last_day).date()
+    # 데이터 범위 내로 조정
+    default_start = max(default_start, min_date)
+    default_end = min(default_end, max_date)
 else:
     default_start = min_date
     default_end = max_date
